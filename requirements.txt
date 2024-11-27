@@ -1,0 +1,4 @@
+pygame==2.6.1           # For sound playback
+pandas==2.1.1           # Data processing and time series manipulation
+matplotlib==3.8.1       # Plot real-time price curves
+numpy==1.26.0           # Numerical calculation (if pandas or matplotlib rely on it)
