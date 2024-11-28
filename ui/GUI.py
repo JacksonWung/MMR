@@ -141,10 +141,10 @@ class StockMarketUI:
             total_cost = current_price * quantity
             if not self.market.buy_stock(current_price, quantity):
                 messagebox.showerror("Error", f"Not enough money to buy {quantity} stocks.")
+            else:
+                self.update_player_info(current_price)
         except ValueError as e:
             messagebox.showerror("Error", str(e))
-
-
 
     def sell_stocks(self):
         """
@@ -157,6 +157,8 @@ class StockMarketUI:
             current_price = self.prices[self.index]
             if not self.market.sell_stock(current_price, quantity):
                 messagebox.showerror("Error", f"Not enough stocks to sell {quantity}.")
+            else:
+                self.update_player_info(current_price)
         except ValueError as e:
             messagebox.showerror("Error", str(e))
 
@@ -171,6 +173,8 @@ class StockMarketUI:
             total_cost = current_price * quantity
             if not self.market.buy_stock(current_price, quantity):
                 messagebox.showerror("Error", f"Not enough money to buy {quantity} stocks.")
+            else:
+                self.update_player_info(current_price)
         except ValueError as e:
             messagebox.showerror("Error", str(e))
 
@@ -184,6 +188,8 @@ class StockMarketUI:
                 raise ValueError("Quantity must be positive.")
             if not self.market.sell_stock(current_price, quantity):
                 messagebox.showerror("Error", f"Not enough stocks to sell {quantity}.")
+            else:
+                self.update_player_info(current_price)
         except ValueError as e:
             messagebox.showerror("Error", str(e))
 
