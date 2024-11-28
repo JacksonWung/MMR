@@ -1,4 +1,6 @@
 import pygame
+from midiutil import MidiFile
+from mingus.core import chords
 
 class SoundManager:
     def __init__(self, sound_dir):
