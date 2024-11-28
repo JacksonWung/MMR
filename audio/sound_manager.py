@@ -8,6 +8,21 @@ class SoundManager:
             "C4", "D4", "E4", "F4", "G4", "A4", "B4"  # 中央八度
         ]
         self.sounds = {note: pygame.mixer.Sound(f"{sound_dir}/{note}.wav") for note in self.notes}
+        
+        self.drums = {
+            "normal": pygame.mixer.Sound(f"{sound_dir}/gain_drum.mp3"),
+            "gain": pygame.mixer.Sound(f"{sound_dir}/money.mp3"),
+            "loss": pygame.mixer.Sound(f"{sound_dir}/loss_drum.wav")
+        }
+        self.current_drum = None
+        self.current_state = None  # 记录当前播放的状态
+
+        # 设置初始音量
+        for sound in self.sounds.values():
+            sound.set_volume(0.8)  # 增大音符音量
+        for drum in self.drums.values():
+            drum.set_volume(0.5)  # 降低背景音乐音量
+
 
     def play_sound(self, note):
         """
@@ -15,6 +30,24 @@ class SoundManager:
         """
         if note in self.sounds:
             self.sounds[note].play()
+
+    def play_drum(self, drum_type):
+        """
+        播放指定类型的背景音乐。
+        """
+
+        if self.current_state == drum_type:
+            # 当前状态未变化，保持当前音乐播放
+            return
+        
+        if self.current_drum:
+            self.current_drum.fadeout(1000)  # 1 秒内淡出当前音频
+
+        if drum_type in self.drums:
+            self.current_drum = self.drums[drum_type]
+            self.current_drum.play(loops=-1, fade_ms=1000)  # 1 秒淡入新音频
+            self.current_state = drum_type  # 更新状态
+
 
     def get_note_by_price_change(self, current_price, next_price):
         """

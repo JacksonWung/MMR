@@ -21,6 +21,9 @@ class StockMarketUI:
         window.title("Stock Market Simulator")
         window.geometry("1200x800")
 
+        # 启动初始背景音乐
+        self.sound_manager.play_drum("normal")
+
         # 曲线图
         fig, ax = plt.subplots(figsize=(8, 4))
         ax.set_title("Stock Price Over Time")
@@ -102,7 +105,7 @@ class StockMarketUI:
             self.update_player_info(next_price)
 
             self.index += 1
-            time.sleep(1)  # 每秒更新一次价格
+            time.sleep(2)  # 每秒更新一次价格
 
 
     def buy_stocks(self):
@@ -148,6 +151,23 @@ class StockMarketUI:
         self.stock_label.config(text=f"Stocks: {self.market.player_stocks}")
         total_value = self.calculate_total_value(current_price)
         self.total_label.config(text=f"Total Value: ${total_value:.2f}")
+
+        # 计算资产变化百分比
+        initial_total = 1000.0  # 假设初始资金为 1000
+        change_percent = ((total_value - initial_total) / initial_total) * 100
+
+        # 根据资产变化播放对应的背景音乐
+        if change_percent >= 2:
+            new_state = "gain"
+        elif change_percent <= -2:
+            new_state = "loss"
+        else:
+            new_state = "normal"
+        
+        # 切换背景音乐
+        self.sound_manager.play_drum(new_state)
+
+
 
     def calculate_total_value(self, current_price=None):
         """
