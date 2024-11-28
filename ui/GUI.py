@@ -139,9 +139,7 @@ class StockMarketUI:
                 raise ValueError("Quantity must be positive.")
             current_price = self.prices[self.index]
             total_cost = current_price * quantity
-            if self.market.buy_stock(current_price, quantity):
-                messagebox.showinfo("Success", f"Bought {quantity} stocks at ${current_price:.2f}.")
-            else:
+            if not self.market.buy_stock(current_price, quantity):
                 messagebox.showerror("Error", f"Not enough money to buy {quantity} stocks.")
         except ValueError as e:
             messagebox.showerror("Error", str(e))
@@ -157,9 +155,7 @@ class StockMarketUI:
             if quantity <= 0:
                 raise ValueError("Quantity must be positive.")
             current_price = self.prices[self.index]
-            if self.market.sell_stock(current_price, quantity):
-                messagebox.showinfo("Success", f"Sold {quantity} stocks at ${current_price:.2f}.")
-            else:
+            if not self.market.sell_stock(current_price, quantity):
                 messagebox.showerror("Error", f"Not enough stocks to sell {quantity}.")
         except ValueError as e:
             messagebox.showerror("Error", str(e))
@@ -173,9 +169,7 @@ class StockMarketUI:
             if quantity <= 0:
                 raise ValueError("Quantity must be positive.")
             total_cost = current_price * quantity
-            if self.market.buy_stock(current_price, quantity):
-                messagebox.showinfo("Success", f"Bought {quantity} stocks at ${current_price:.2f}.")
-            else:
+            if not self.market.buy_stock(current_price, quantity):
                 messagebox.showerror("Error", f"Not enough money to buy {quantity} stocks.")
         except ValueError as e:
             messagebox.showerror("Error", str(e))
@@ -188,9 +182,7 @@ class StockMarketUI:
         try:
             if quantity <= 0:
                 raise ValueError("Quantity must be positive.")
-            if self.market.sell_stock(current_price, quantity):
-                messagebox.showinfo("Success", f"Sold {quantity} stocks at ${current_price:.2f}.")
-            else:
+            if not self.market.sell_stock(current_price, quantity):
                 messagebox.showerror("Error", f"Not enough stocks to sell {quantity}.")
         except ValueError as e:
             messagebox.showerror("Error", str(e))
