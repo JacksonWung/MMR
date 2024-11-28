@@ -21,10 +21,10 @@ class StockMarketUI:
         window.title("Stock Market Simulator")
         window.geometry("1200x800")
 
-        # 启动初始背景音乐
+        # Start initial background music
         self.sound_manager.play_drum("normal")
 
-        # 曲线图
+        # Line plot
         fig, ax = plt.subplots(figsize=(8, 4))
         ax.set_title("Stock Price Over Time")
         ax.set_xlabel("Time")
@@ -33,21 +33,22 @@ class StockMarketUI:
         canvas = FigureCanvasTkAgg(fig, master=window)
         canvas.get_tk_widget().pack()
 
-        # 玩家资金和仓位信息
+        # Player funds and stock info
         self.money_label = tk.Label(window, text=f"Money: ${self.market.player_money:.2f}", font=("Arial", 12))
         self.money_label.pack()
 
         self.stock_label = tk.Label(window, text=f"Stocks: {self.market.player_stocks}", font=("Arial", 12))
         self.stock_label.pack()
 
-        self.total_label = tk.Label(window, text=f"Total Value: ${self.calculate_total_value():.2f}", font=("Arial", 12))
+        self.total_label = tk.Label(window, text=f"Total Value: ${self.calculate_total_value():.2f}",
+                                    font=("Arial", 12))
         self.total_label.pack()
 
-        # 当前价格显示
+        # Current price display
         self.price_label = tk.Label(window, text="Current Price: $0.00", font=("Arial", 12))
         self.price_label.pack()
 
-            # 买卖功能
+        # Buy and sell manually
         control_frame = tk.Frame(window)
         control_frame.pack(pady=10)
 
@@ -61,7 +62,27 @@ class StockMarketUI:
         sell_button = tk.Button(control_frame, text="Sell", command=self.sell_stocks, bg="red", fg="white")
         sell_button.grid(row=0, column=3, padx=5, pady=5)
 
-        # 控制功能按钮
+        # Buy and Sell Predefined Quantities
+        quantity_frame = tk.Frame(window)
+        quantity_frame.pack(pady=10)
+
+        # Buy Buttons
+        buy_label = tk.Label(quantity_frame, text="Buy:")
+        buy_label.grid(row=0, column=0, padx=0, pady=0)
+        for i, amount in enumerate([1, 5, 10, 20, 50, 100]):
+            btn = tk.Button(quantity_frame, text=f"{amount}", command=lambda a=amount: self.buy_stocks_fixed(a), bg="green",
+                            fg="white", height=1, width=3)
+            btn.grid(row=0, column=i + 1, padx=0, pady=0)
+
+        # Sell Buttons
+        sell_label = tk.Label(quantity_frame, text="Sell:")
+        sell_label.grid(row=1, column=0, padx=0, pady=0)
+        for i, amount in enumerate([1, 5, 10, 20, 50, 100]):
+            btn = tk.Button(quantity_frame, text=f"{amount}", command=lambda a=amount: self.sell_stocks_fixed(a), bg="red",
+                            fg="white", height=1, width=3)
+            btn.grid(row=1, column=i + 1, padx=0, pady=0)
+
+        # Control buttons
         control_frame2 = tk.Frame(window)
         control_frame2.pack(pady=10)
 
@@ -74,7 +95,7 @@ class StockMarketUI:
         quit_button = tk.Button(control_frame2, text="Quit", command=self.quit_program, bg="black", fg="white")
         quit_button.grid(row=0, column=2, padx=5, pady=5)
 
-        # 启动播放线程
+        # Start the simulation thread
         threading.Thread(target=self.play_music_with_chart_update, args=(ax, canvas)).start()
 
         window.protocol("WM_DELETE_WINDOW", self.quit_program)
@@ -136,6 +157,37 @@ class StockMarketUI:
             if quantity <= 0:
                 raise ValueError("Quantity must be positive.")
             current_price = self.prices[self.index]
+            if self.market.sell_stock(current_price, quantity):
+                messagebox.showinfo("Success", f"Sold {quantity} stocks at ${current_price:.2f}.")
+            else:
+                messagebox.showerror("Error", f"Not enough stocks to sell {quantity}.")
+        except ValueError as e:
+            messagebox.showerror("Error", str(e))
+
+    def buy_stocks_fixed(self, quantity):
+        """
+        Buy a fixed quantity of stocks - either 1, 5, 10, 20, 50 or 100
+        """
+        current_price = self.prices[self.index]
+        try:
+            if quantity <= 0:
+                raise ValueError("Quantity must be positive.")
+            total_cost = current_price * quantity
+            if self.market.buy_stock(current_price, quantity):
+                messagebox.showinfo("Success", f"Bought {quantity} stocks at ${current_price:.2f}.")
+            else:
+                messagebox.showerror("Error", f"Not enough money to buy {quantity} stocks.")
+        except ValueError as e:
+            messagebox.showerror("Error", str(e))
+
+    def sell_stocks_fixed(self, quantity):
+        """
+        Sell a fixed quantity of stocks - either 1, 5, 10, 20, 50 or 100
+        """
+        current_price = self.prices[self.index]
+        try:
+            if quantity <= 0:
+                raise ValueError("Quantity must be positive.")
             if self.market.sell_stock(current_price, quantity):
                 messagebox.showinfo("Success", f"Sold {quantity} stocks at ${current_price:.2f}.")
             else:
