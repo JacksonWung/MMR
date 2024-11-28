@@ -19,7 +19,7 @@ class StockMarketUI:
     def create_main_window(self):
         window = tk.Tk()
         window.title("Stock Market Simulator")
-        window.geometry("800x600")
+        window.geometry("1200x800")
 
         # 曲线图
         fig, ax = plt.subplots(figsize=(8, 4))
@@ -44,7 +44,7 @@ class StockMarketUI:
         self.price_label = tk.Label(window, text="Current Price: $0.00", font=("Arial", 12))
         self.price_label.pack()
 
-        # 买卖功能
+            # 买卖功能
         control_frame = tk.Frame(window)
         control_frame.pack(pady=10)
 
@@ -58,15 +58,25 @@ class StockMarketUI:
         sell_button = tk.Button(control_frame, text="Sell", command=self.sell_stocks, bg="red", fg="white")
         sell_button.grid(row=0, column=3, padx=5, pady=5)
 
-        # 停止按钮
-        stop_button = tk.Button(window, text="Stop", command=self.stop_simulation, bg="gray", fg="white")
-        stop_button.pack(pady=10)
+        # 控制功能按钮
+        control_frame2 = tk.Frame(window)
+        control_frame2.pack(pady=10)
+
+        stop_button = tk.Button(control_frame2, text="Stop", command=self.stop_simulation, bg="gray", fg="white")
+        stop_button.grid(row=0, column=0, padx=5, pady=5)
+
+        restart_button = tk.Button(control_frame2, text="Restart", command=self.restart_program, bg="blue", fg="white")
+        restart_button.grid(row=0, column=1, padx=5, pady=5)
+
+        quit_button = tk.Button(control_frame2, text="Quit", command=self.quit_program, bg="black", fg="white")
+        quit_button.grid(row=0, column=2, padx=5, pady=5)
 
         # 启动播放线程
         threading.Thread(target=self.play_music_with_chart_update, args=(ax, canvas)).start()
 
-        window.protocol("WM_DELETE_WINDOW", self.stop_simulation)
+        window.protocol("WM_DELETE_WINDOW", self.quit_program)
         window.mainloop()
+
 
     def play_music_with_chart_update(self, ax, canvas):
         """
@@ -112,6 +122,8 @@ class StockMarketUI:
         except ValueError as e:
             messagebox.showerror("Error", str(e))
 
+
+
     def sell_stocks(self):
         """
         处理卖出操作，更新用户资金和仓位。
@@ -151,3 +163,39 @@ class StockMarketUI:
         """
         self.stop_thread = True
         print("Simulation Stopped")
+
+    def quit_program(self):
+        """
+        安全退出程序：
+        - 停止线程
+        - 关闭窗口
+        """
+        self.stop_thread = True  # 停止后台线程
+        print("Exiting the program...")
+        exit(0)  # 退出程序
+
+    def restart_program(self):
+        """
+        重启程序：
+        - 停止当前线程
+        - 重置用户资金、仓位和价格曲线
+        - 重新启动播放线程
+        """
+        # 停止当前线程
+        if hasattr(self, "play_thread") and self.play_thread.is_alive():
+            self.stop_thread = True  # 通知线程停止
+            self.play_thread.join()  # 等待线程完全终止
+
+        # 重置模拟状态
+        self.market.player_money = 1000.0  # 重置初始资金
+        self.market.player_stocks = 0      # 重置初始仓位
+        self.index = 0                     # 重置价格索引
+        self.stop_thread = False           # 重置停止标志
+
+        # 更新界面显示
+        self.update_player_info(self.prices[self.index])
+        self.price_label.config(text=f"Current Price: ${self.prices[self.index]:.2f}")
+
+        # 重启播放线程
+        threading.Thread(target=self.play_music_with_chart_update, args=(self.line.axes, self.line.figure.canvas)).start()
+        self.play_thread.start()
