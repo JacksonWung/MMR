@@ -70,7 +70,7 @@ class StockMarketUI:
 
     def play_music_with_chart_update(self, ax, canvas):
         """
-        实时更新价格曲线，并根据价格变化播放音符。
+        实时更新价格曲线，并根据精确价格变化播放音符。
         """
         while self.index < len(self.prices) - 1 and not self.stop_thread:
             current_price = self.prices[self.index]
@@ -83,7 +83,7 @@ class StockMarketUI:
             canvas.draw()
 
             # 根据价格变化播放音符
-            self.sound_manager.play_based_on_price(next_price, current_price)
+            self.sound_manager.play_based_on_price(current_price, next_price)
 
             # 更新价格显示
             self.price_label.config(text=f"Current Price: ${next_price:.2f}")
@@ -93,6 +93,7 @@ class StockMarketUI:
 
             self.index += 1
             time.sleep(1)  # 每秒更新一次价格
+
 
     def buy_stocks(self):
         """
