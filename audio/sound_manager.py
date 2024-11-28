@@ -1,20 +1,22 @@
 import pygame
+import time
 from midiutil import MidiFile
 from mingus.core import chords
 
+
 class SoundManager:
-    def __init__(self, sound_dir):
+    def __init__(self, sound_dir, bpm=153):
         pygame.mixer.init()
         self.notes = [
             "D3", "E3", "F3", "G3", "A3", "B3",  # 下八度
             "C4", "D4", "E4", "F4", "G4", "A4", "B4"  # 中央八度
         ]
         self.sounds = {note: pygame.mixer.Sound(f"{sound_dir}/{note}.wav") for note in self.notes}
-        
+
         self.drums = {
-            "normal": pygame.mixer.Sound(f"{sound_dir}/gain_drum.mp3"),
-            "gain": pygame.mixer.Sound(f"{sound_dir}/money.mp3"),
-            "loss": pygame.mixer.Sound(f"{sound_dir}/loss_drum.wav")
+            "normal": pygame.mixer.Sound(f"{sound_dir}/JazzDrum153bpm.wav"),
+            "gain": pygame.mixer.Sound(f"{sound_dir}/JazzDrum153bpm.wav"),
+            "loss": pygame.mixer.Sound(f"{sound_dir}/JazzDrum153bpm.wav")
         }
         self.current_drum = None
         self.current_state = None  # 记录当前播放的状态
@@ -25,6 +27,8 @@ class SoundManager:
         for drum in self.drums.values():
             drum.set_volume(0.5)  # 降低背景音乐音量
 
+        self.bpm = bpm
+        self.beat_duration = 60 / bpm  # Duration of one beat in seconds
 
     def play_sound(self, note):
         """
@@ -37,11 +41,10 @@ class SoundManager:
         """
         播放指定类型的背景音乐。
         """
-
         if self.current_state == drum_type:
             # 当前状态未变化，保持当前音乐播放
             return
-        
+
         if self.current_drum:
             self.current_drum.fadeout(1000)  # 1 秒内淡出当前音频
 
@@ -49,7 +52,6 @@ class SoundManager:
             self.current_drum = self.drums[drum_type]
             self.current_drum.play(loops=-1, fade_ms=1000)  # 1 秒淡入新音频
             self.current_state = drum_type  # 更新状态
-
 
     def get_note_by_price_change(self, current_price, next_price):
         """
@@ -60,11 +62,11 @@ class SoundManager:
         """
         if current_price == 0:  # 防止除以 0
             return "C4"
-        
+
         # 计算价格变化的百分比
         price_change = (next_price - current_price) / current_price
         step = round(price_change / 0.005)  # 每 0.5% 升降一个音符
-        
+
         # C4 的索引位置
         c4_index = self.notes.index("C4")
         target_index = c4_index + step
@@ -75,7 +77,12 @@ class SoundManager:
 
     def play_based_on_price(self, current_price, next_price):
         """
-        播放对应价格变化的音符。
+        播放对应价格变化的音符，并确保与鼓点同步。
         """
         note = self.get_note_by_price_change(current_price, next_price)
+
+        # Wait for the next beat to play the note
+        time.sleep(self.beat_duration)  # Wait to sync with the drum tempo
+
+        # Play the sound at the correct interval
         self.play_sound(note)
