@@ -15,5 +15,8 @@ def main():
     ui = StockMarketUI(market, stock_data, sound_manager)
     ui.create_main_window()
 
+
+
 if __name__ == "__main__":
     main()
+    ui.start_ui()

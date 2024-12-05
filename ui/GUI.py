@@ -16,6 +16,8 @@ class StockMarketUI:
         self.index = 0
         self.stop_thread = False
 
+
+
     def create_main_window(self):
         window = tk.Tk()
         window.title("Stock Market Simulator")
@@ -124,6 +126,7 @@ class StockMarketUI:
 
             # 更新用户资金和仓位信息
             self.update_player_info(next_price)
+            
 
             self.index += 1
             time.sleep(2)  # 每秒更新一次价格
@@ -269,3 +272,21 @@ class StockMarketUI:
         # 重启播放线程
         threading.Thread(target=self.play_music_with_chart_update, args=(self.line.axes, self.line.figure.canvas)).start()
         self.play_thread.start()
+
+    def update_background_color(self):
+        """
+        根据音乐状态动态更新背景颜色。
+        """
+        if self.sound_manager.is_rising():
+            self.root.configure(bg='lightgreen')  # 音乐上升时背景变为绿色
+        else:
+            self.root.configure(bg='lightblue')  # 音乐下降时背景变为蓝色
+
+
+    def start_ui(self):
+        def update_loop():
+            self.update_background_color()
+            self.root.after(100, update_loop)  # 每100ms更新一次UI
+
+        update_loop()
+        self.root.mainloop()

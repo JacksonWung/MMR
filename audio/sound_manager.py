@@ -16,6 +16,8 @@ class SoundManager:
         }
         self.current_drum = None
         self.current_state = None  # 记录当前播放的状态
+        self.previous_note = None
+        self.current_note = None
 
         # 设置初始音量
         for sound in self.sounds.values():
@@ -30,6 +32,9 @@ class SoundManager:
         """
         if note in self.sounds:
             self.sounds[note].play()
+            self.previous_note = self.current_note
+            self.current_note = self.notes.index(note)  # 根据音符索引判断趋势
+
 
     def play_drum(self, drum_type):
         """
@@ -77,3 +82,8 @@ class SoundManager:
         """
         note = self.get_note_by_price_change(current_price, next_price)
         self.play_sound(note)
+
+    def is_rising(self):
+        if self.previous_note is not None and self.current_note is not None:
+            return self.current_note > self.previous_note
+        return False
