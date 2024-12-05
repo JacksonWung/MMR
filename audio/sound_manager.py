@@ -1,8 +1,9 @@
 import pygame
 
 class SoundManager:
-    def __init__(self, sound_dir):
+    def __init__(self, sound_dir,initial_price):
         pygame.mixer.init()
+        self.initial_price = initial_price
         self.notes = [
             "D3", "E3", "F3", "G3", "A3", "B3",  # 下八度
             "C4", "D4", "E4", "F4", "G4", "A4", "B4"  # 中央八度
@@ -30,6 +31,7 @@ class SoundManager:
         """
         if note in self.sounds:
             self.sounds[note].play()
+
 
     def play_drum(self, drum_type):
         """
@@ -60,7 +62,7 @@ class SoundManager:
             return "C4"
         
         # 计算价格变化的百分比
-        price_change = (next_price - current_price) / current_price
+        price_change = (next_price - self.initial_price) / self.initial_price
         step = round(price_change / 0.005)  # 每 0.5% 升降一个音符
         
         # C4 的索引位置
