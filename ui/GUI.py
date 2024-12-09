@@ -13,6 +13,76 @@ class StockMarketUI:
         self.dates = stock_data['Date'].tolist()
         self.index = 0
         self.stop_thread = False
+
+    def show_instruction_window(self):
+        """
+        Display a multi-step instruction guide for new users.
+        """
+
+        root = tk.Tk()
+        root.withdraw()
+
+        instructions = [
+            "Welcome to the Stock Market Simulator!\n\n"
+            "This game simulates real-world stock trading combined with a musical experience. "
+            "Stock price movements are represented by musical pitches: higher prices lead to higher pitches, "
+            "and lower prices lead to lower pitches. Your objective is to trade stocks while enjoying the musical dynamics.",
+
+            "Stock Market Basics:\n\n"
+            "1. To profit, buy stocks at a low price and sell them at a higher price.\n"
+            "2. Larger investments may yield higher profits but come with greater risks.\n"
+            "3. Monitor the stock price graph and musical cues to make strategic decisions.\n"
+            "4. Remember: A good trader always balances risks and rewards.",
+        
+            "How to Play:\n\n"
+            "1. You start with $100,000 in virtual money.\n"
+            "2. Stock prices and your portfolio details are displayed in real-time.\n"
+            "3. Input the number of shares to trade and click the Buy or Sell button.\n"
+            "   Alternatively, use shortcut buttons for quick trades.\n"
+            "4. Restrictions:\n"
+            "   - You can only buy stocks if you have enough funds.\n"
+            "   - You can only sell stocks if you have shares in your portfolio.\n"
+            "5. Aim to maximize your total value by trading wisely.",
+        ]
+
+        def next_instruction(index=0):
+            if index < len(instructions):
+                instruction_window = tk.Toplevel()
+                instruction_window.title("Instruction")
+                instruction_window.geometry("600x400")
+        
+
+
+                # Add content
+                tk.Label(
+                    instruction_window,
+                    text=instructions[index],
+                    wraplength=550,
+                    justify="left",
+                    font=("Arial", 12)
+                ).pack(pady=20)
+        
+                # Add buttons
+                if index < len(instructions) - 1:
+                    tk.Button(
+                        instruction_window,
+                        text="Next",
+                        command=lambda: [instruction_window.destroy(), next_instruction(index + 1)]
+                    ).pack(pady=10)
+                else:
+                    tk.Button(
+                        instruction_window,
+                        text="Start Game",
+                        command=lambda: [instruction_window.destroy(), self.create_main_window()]
+                    ).pack(pady=10)
+            else:
+                self.destroy()
+
+                
+
+        next_instruction()
+        root.mainloop()
+    
     def create_main_window(self):
         window = tk.Tk()
         window.title("Stock Market Simulator")
@@ -78,6 +148,7 @@ class StockMarketUI:
         threading.Thread(target=self.play_music_with_chart_update, args=(ax, canvas)).start()
         window.protocol("WM_DELETE_WINDOW", self.quit_program)
         window.mainloop()
+
 
 
 
