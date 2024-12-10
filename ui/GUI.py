@@ -21,7 +21,6 @@ class StockMarketUI:
         """
         Display a multi-step instruction guide for new users.
         """
-
         root = tk.Tk()
         root.withdraw()
 
@@ -36,7 +35,7 @@ class StockMarketUI:
             "2. Larger investments may yield higher profits but come with greater risks.\n"
             "3. Monitor the stock price graph and musical cues to make strategic decisions.\n"
             "4. Remember: A good trader always balances risks and rewards.",
-        
+
             "How to Play:\n\n"
             "1. You start with $100,000 in virtual money.\n"
             "2. Stock prices and your portfolio details are displayed in real-time.\n"
@@ -53,35 +52,57 @@ class StockMarketUI:
                 instruction_window = tk.Toplevel()
                 instruction_window.title("Instruction")
                 instruction_window.geometry("600x400")
-        
+                instruction_window.configure(bg="#f0f8ff")
 
+                # 添加标题标签
+                tk.Label(
+                    instruction_window,
+                    text=f"Step {index + 1}",
+                    font=("Helvetica", 18, "bold"),
+                    bg="#f0f8ff",
+                    fg="#0056b3"
+                ).pack(pady=10)
 
-                # Add content
+                # 添加说明内容
                 tk.Label(
                     instruction_window,
                     text=instructions[index],
                     wraplength=550,
                     justify="left",
-                    font=("Arial", 12)
+                    font=("Arial", 14),
+                    bg="#f0f8ff",
+                    fg="#333333"
                 ).pack(pady=20)
-        
-                # Add buttons
+
+                # 按钮样式
+                button_bg = "#007bff"
+                button_fg = "white"
+                button_font = ("Helvetica", 14, "bold")
+
                 if index < len(instructions) - 1:
                     tk.Button(
                         instruction_window,
                         text="Next",
-                        command=lambda: [instruction_window.destroy(), next_instruction(index + 1)]
+                        command=lambda: [instruction_window.destroy(), next_instruction(index + 1)],
+                        bg=button_bg,
+                        fg=button_fg,
+                        font=button_font,
+                        relief="raised",
+                        bd=3,
+                        width=10
                     ).pack(pady=10)
                 else:
                     tk.Button(
                         instruction_window,
                         text="Start Game",
-                        command=lambda: [instruction_window.destroy(), self.create_main_window()]
+                        command=lambda: [instruction_window.destroy(), self.create_main_window()],
+                        bg=button_bg,
+                        fg=button_fg,
+                        font=button_font,
+                        relief="raised",
+                        bd=3,
+                        width=15
                     ).pack(pady=10)
-            else:
-                self.destroy()
-
-                
 
         next_instruction()
         root.mainloop()
@@ -90,111 +111,120 @@ class StockMarketUI:
         window = tk.Tk()
         window.title("Stock Market Simulator")
         window.geometry("1200x800")
+        window.configure(bg="#f0f8ff")  # 设置背景颜色
+
         # Start initial background music
         self.sound_manager.play_drum("normal")
-        # Line plot
+
+        # ========== 顶部信息区域 ==========
+        top_frame = tk.Frame(window, bg="#d9edf7", relief="raised", bd=2)
+        top_frame.pack(side="top", fill="x", padx=10, pady=10)
+
+        self.money_label = tk.Label(top_frame, text=f"Money: ${self.market.player_money:.2f}", font=("Arial", 14), bg="#d9edf7")
+        self.money_label.pack(side="left", padx=20, pady=10)
+
+        self.stock_label = tk.Label(top_frame, text=f"Stocks: {self.market.player_stocks}", font=("Arial", 14), bg="#d9edf7")
+        self.stock_label.pack(side="left", padx=20, pady=10)
+
+        self.total_label = tk.Label(top_frame, text=f"Total Value: ${self.calculate_total_value():.2f}", font=("Arial", 14), bg="#d9edf7")
+        self.total_label.pack(side="left", padx=20, pady=10)
+
+        # ========== 中心图表区域 ==========
+        center_frame = tk.Frame(window, bg="#f0f8ff")
+        center_frame.pack(fill="both", expand=True, padx=10, pady=10)
+
         fig, ax = plt.subplots(figsize=(8, 4))
         ax.set_title("Stock Price Over Time")
         ax.set_xlabel("Time")
         ax.set_ylabel("Price")
         self.line, = ax.plot([], [], color="blue")
-        canvas = FigureCanvasTkAgg(fig, master=window)
-        canvas.get_tk_widget().pack()
-        # Player funds and stock info
-        self.money_label = tk.Label(window, text=f"Money: ${self.market.player_money:.2f}", font=("Arial", 12))
-        self.money_label.pack()
-        self.stock_label = tk.Label(window, text=f"Stocks: {self.market.player_stocks}", font=("Arial", 12))
-        self.stock_label.pack()
-        self.total_label = tk.Label(window, text=f"Total Value: ${self.calculate_total_value():.2f}",
-                                    font=("Arial", 12))
-        self.total_label.pack()
-        # Current price display
-        self.price_label = tk.Label(window, text="Current Price: $0.00", font=("Arial", 12))
-        self.price_label.pack()
-        # Buy and sell manually
-        control_frame = tk.Frame(window)
+
+        # 设置背景颜色
+        fig.patch.set_facecolor("#f0f8ff")
+        ax.set_facecolor("#e6f7ff")
+
+        canvas = FigureCanvasTkAgg(fig, master=center_frame)
+        canvas.get_tk_widget().pack(fill="both", expand=True)
+
+        self.price_label = tk.Label(center_frame, text="Current Price: $0.00", font=("Verdana", 16, "bold"), fg="#0056b3", bg="#f0f8ff")
+        self.price_label.pack(pady=10)
+
+        # ========== 底部控制区域 ==========
+        bottom_frame = tk.Frame(window, bg="#d9edf7", relief="raised", bd=2)
+        bottom_frame.pack(side="bottom", fill="x", padx=10, pady=10)
+
+        # 买卖输入和按钮
+        control_frame = tk.Frame(bottom_frame, bg="#d9edf7")
         control_frame.pack(pady=10)
-        tk.Label(control_frame, text="Quantity:").grid(row=0, column=0, padx=5, pady=5)
+
+        tk.Label(control_frame, text="Quantity:", bg="#d9edf7", font=("Arial", 12)).grid(row=0, column=0, padx=5, pady=5)
         self.quantity_entry = tk.Entry(control_frame, width=10)
         self.quantity_entry.grid(row=0, column=1, padx=5, pady=5)
-        buy_button = tk.Button(control_frame, text="Buy", command=self.buy_stocks, bg="green", fg="white")
-        buy_button.grid(row=0, column=2, padx=5, pady=5)
-        sell_button = tk.Button(control_frame, text="Sell", command=self.sell_stocks, bg="red", fg="white")
-        sell_button.grid(row=0, column=3, padx=5, pady=5)
-        # Buy and Sell Predefined Quantities
-        quantity_frame = tk.Frame(window)
-        quantity_frame.pack(pady=10)
-        # Buy Buttons
-        buy_label = tk.Label(quantity_frame, text="Buy:")
-        buy_label.grid(row=0, column=0, padx=0, pady=0)
-        for i, amount in enumerate([1, 5, 10, 20, 50, 100]):
-            btn = tk.Button(quantity_frame, text=f"{amount}", command=lambda a=amount: self.buy_stocks_fixed(a), bg="green",
-                            fg="white", height=1, width=3)
-            btn.grid(row=0, column=i + 1, padx=0, pady=0)
-        # Sell Buttons
-        sell_label = tk.Label(quantity_frame, text="Sell:")
-        sell_label.grid(row=1, column=0, padx=0, pady=0)
-        for i, amount in enumerate([1, 5, 10, 20, 50, 100]):
-            btn = tk.Button(quantity_frame, text=f"{amount}", command=lambda a=amount: self.sell_stocks_fixed(a), bg="red",
-                            fg="white", height=1, width=3)
-            btn.grid(row=1, column=i + 1, padx=0, pady=0)
-        # Control buttons
-        control_frame2 = tk.Frame(window)
+
+        buy_button = tk.Button(control_frame, text="Buy", command=self.buy_stocks, bg="#28a745", fg="white", font=("Helvetica", 14, "bold"))
+        buy_button.grid(row=0, column=2, padx=10, pady=10)
+
+        sell_button = tk.Button(control_frame, text="Sell", command=self.sell_stocks, bg="#dc3545", fg="white", font=("Helvetica", 14, "bold"))
+        sell_button.grid(row=0, column=3, padx=10, pady=10)
+
+        # 控制按钮
+        control_frame2 = tk.Frame(bottom_frame, bg="#d9edf7")
         control_frame2.pack(pady=10)
-        stop_button = tk.Button(control_frame2, text="Stop", command=self.stop_simulation, bg="gray", fg="white")
-        stop_button.grid(row=0, column=0, padx=5, pady=5)
-        restart_button = tk.Button(control_frame2, text="Restart", command=self.restart_program, bg="blue", fg="white")
-        restart_button.grid(row=0, column=1, padx=5, pady=5)
-        quit_button = tk.Button(control_frame2, text="Quit", command=self.quit_program, bg="black", fg="white")
-        quit_button.grid(row=0, column=2, padx=5, pady=5)
-        # Start the simulation thread
+
+        stop_button = tk.Button(control_frame2, text="Stop", command=self.stop_simulation, bg="gray", fg="white", font=("Helvetica", 12, "bold"))
+        stop_button.grid(row=0, column=0, padx=10, pady=10)
+
+        restart_button = tk.Button(control_frame2, text="Restart", command=self.restart_program, bg="blue", fg="white", font=("Helvetica", 12, "bold"))
+        restart_button.grid(row=0, column=1, padx=10, pady=10)
+
+        quit_button = tk.Button(control_frame2, text="Quit", command=self.quit_program, bg="black", fg="white", font=("Helvetica", 12, "bold"))
+        quit_button.grid(row=0, column=2, padx=10, pady=10)
+
+        # 启动实时数据更新线程
         threading.Thread(target=self.play_music_with_chart_update, args=(ax, canvas)).start()
+
         window.protocol("WM_DELETE_WINDOW", self.quit_program)
         window.mainloop()
-
+        
     def show_feedback_window(self):
+        
         """
         Display a feedback form to collect user experience.
         """
 
-        # Create root if not already initialized
-        global root
-        root = tk.Tk()
-        root.withdraw()
-
+        # 创建反馈窗口
         feedback_window = tk.Toplevel()
         feedback_window.title("Feedback Form")
-        feedback_window.geometry("1000x1100")
+        feedback_window.geometry("600x700")
+        feedback_window.configure(bg="#f0f8ff")  # 设置背景颜色
 
-        # Create a dictionary to store feedback
-        feedback_data = {}
+        # 标题标签
+        tk.Label(
+            feedback_window,
+            text="We Value Your Feedback!",
+            font=("Helvetica", 20, "bold"),
+            bg="#f0f8ff",
+            fg="#0056b3"
+        ).pack(pady=20)
 
-        # Helper to create a label and input
-        def create_question(frame, question_text, var_type="entry"):
-            tk.Label(frame, text=question_text, font=("Arial", 12)).pack(anchor="w", pady=5)
-            if var_type == "scale":
-                var = tk.IntVar(value=4)
-                scale = tk.Scale(frame, from_=1, to=7, orient=tk.HORIZONTAL, variable=var)
-                scale.pack(anchor="w", pady=5)
-                return var
-            elif var_type == "radio":
-                var = tk.StringVar(value="Yes")
-                frame_inner = tk.Frame(frame)
-                frame_inner.pack(anchor="w", pady=5)
-                tk.Radiobutton(frame_inner, text="Yes", value="Yes", variable=var).pack(side="left")
-                tk.Radiobutton(frame_inner, text="No", value="No", variable=var).pack(side="left")
-                return var
-            elif var_type == "entry":
-                var = tk.StringVar()
-                entry = tk.Entry(frame, textvariable=var, width=50)
-                entry.pack(anchor="w", pady=5)
-                return var
+        # 添加滚动条
+        canvas = tk.Canvas(feedback_window, bg="#f0f8ff")
+        scrollbar = tk.Scrollbar(feedback_window, orient="vertical", command=canvas.yview)
+        scrollable_frame = tk.Frame(canvas, bg="#f0f8ff")
 
-        # Create compulsory questions
-        questions_frame = tk.Frame(feedback_window)
-        questions_frame.pack(pady=10, padx=20, fill="x")
+        scrollable_frame.bind(
+            "<Configure>",
+            lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+        )
 
-        compulsory_questions = [
+        canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+        canvas.configure(yscrollcommand=scrollbar.set)
+
+        canvas.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
+
+        # 问题列表
+        questions = [
             ("Do you understand what to do?", "radio"),
             ("How was your experience?", "scale"),
             ("Do you understand the relationship between stock prices and music?", "radio"),
@@ -202,24 +232,125 @@ class StockMarketUI:
             ("Was the interface easy to use?", "scale"),
             ("Would you recommend this game to others?", "radio")
         ]
-        compulsory_vars = []
-        for q_text, q_type in compulsory_questions:
-            compulsory_vars.append(create_question(questions_frame, q_text, var_type=q_type))
 
-        # Create optional questions
-        optional_frame = tk.LabelFrame(feedback_window, text="Optional Questions", font=("Arial", 12))
-        optional_frame.pack(pady=10, padx=20, fill="x")
+        feedback_data = {}
 
-        optional_questions = [
-            ("What features did you enjoy the most?", "entry"),
-            ("Any specific feedback about the music?", "entry"),
-            ("Would you play this game again?", "radio"),
-            ("Do you have any suggestions for new features?", "entry")
+    def show_feedback_window(self):
+        """
+        Display a feedback form to collect user experience.
+        """
+
+        # 创建反馈窗口
+        feedback_window = tk.Toplevel()
+        feedback_window.title("Feedback Form")
+        feedback_window.geometry("700x800")
+        feedback_window.configure(bg="#e6f7ff")
+
+        # 标题标签
+        tk.Label(
+            feedback_window,
+            text="We Value Your Feedback!",
+            font=("Helvetica", 24, "bold"),
+            bg="#e6f7ff",
+            fg="#004085"
+        ).pack(pady=20)
+
+        # 创建一个 Frame 作为滚动区域的容器
+        scrollable_container = tk.Frame(feedback_window, bg="#e6f7ff")
+        scrollable_container.pack(fill="both", expand=True, padx=10, pady=10)
+
+        # 添加滚动条
+        canvas = tk.Canvas(scrollable_container, bg="#f0faff", highlightthickness=0)
+        scrollbar = tk.Scrollbar(scrollable_container, orient="vertical", command=canvas.yview)
+        scrollable_frame = tk.Frame(canvas, bg="#f0faff")
+
+        scrollable_frame.bind(
+            "<Configure>",
+            lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+        )
+
+        canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+        canvas.configure(yscrollcommand=scrollbar.set)
+
+        canvas.pack(side="left", fill="both", expand=True)
+        scrollbar.pack(side="right", fill="y")
+
+        # 问题列表
+        questions = [
+            ("Do you understand what to do?", "radio"),
+            ("How was your experience?", "scale"),
+            ("Do you understand the relationship between stock prices and music?", "radio"),
+            ("How can we improve our design?", "entry"),
+            ("Was the interface easy to use?", "scale"),
+            ("Would you recommend this game to others?", "radio")
         ]
-        optional_vars = []
-        for q_text, q_type in optional_questions:
-            optional_vars.append(create_question(optional_frame, q_text, var_type=q_type))
 
+        feedback_data = {}
+
+        # 创建问题的辅助函数
+        def create_question(frame, question_text, var_type="entry"):
+            tk.Label(frame, text=question_text, font=("Arial", 14, "bold"), bg="#f0faff").pack(anchor="w", pady=5)
+
+            if var_type == "scale":
+                var = tk.IntVar(value=4)
+                scale = tk.Scale(frame, from_=1, to=7, orient=tk.HORIZONTAL, variable=var, bg="#f0faff")
+                scale.pack(anchor="w", pady=5)
+                return var
+
+            elif var_type == "radio":
+                var = tk.StringVar(value="Yes")
+                frame_inner = tk.Frame(frame, bg="#f0faff")
+                frame_inner.pack(anchor="w", pady=5)
+                tk.Radiobutton(frame_inner, text="Yes", value="Yes", variable=var, bg="#f0faff").pack(side="left")
+                tk.Radiobutton(frame_inner, text="No", value="No", variable=var, bg="#f0faff").pack(side="left")
+                return var
+
+            elif var_type == "entry":
+                var = tk.StringVar()
+                entry = tk.Entry(frame, textvariable=var, width=60)
+                entry.pack(anchor="w", pady=5)
+                return var
+
+        # 为每个问题创建控件
+        vars_list = []
+        for question, q_type in questions:
+            vars_list.append(create_question(scrollable_frame, question, q_type))
+
+        # 提交反馈的函数
+        def submit_feedback():
+            feedback_results = {}
+            for i, var in enumerate(vars_list):
+                feedback_results[f"Q{i+1}"] = var.get()
+
+            # 保存反馈到 Excel
+            file_path = "feedback.xlsx"
+            df = pd.DataFrame([feedback_results])
+
+            if os.path.exists(file_path):
+                existing_df = pd.read_excel(file_path, engine="openpyxl")
+                df = pd.concat([existing_df, df], ignore_index=True)
+
+            df.to_excel(file_path, index=False, engine="openpyxl")
+
+            messagebox.showinfo("Thank You", "Thank you for your feedback!")
+            feedback_window.destroy()
+
+        # 提交按钮样式和布局
+        submit_button = tk.Button(
+            feedback_window,
+            text="Submit",
+            command=submit_feedback,
+            font=("Helvetica", 18, "bold"),
+            bg="#28a745",
+            fg="white",
+            relief="raised",
+            bd=3,
+            width=20,
+            height=2
+        )
+
+        # 将按钮放在窗口底部并居中
+        submit_button.pack(side="bottom", pady=20)
         # Submit feedback
         def submit_feedback():
             # Check if all compulsory questions are answered
@@ -254,8 +385,6 @@ class StockMarketUI:
             feedback_window.destroy()
             root.quit()
             sys.exit(0)
-
-        tk.Button(feedback_window, text="Submit", command=submit_feedback, bg="blue", fg="white").pack(pady=10)
     
 
     def play_music_with_chart_update(self, ax, canvas):
@@ -292,6 +421,7 @@ class StockMarketUI:
                 messagebox.showerror("Error", f"Not enough money to buy {quantity} stocks.")
             else:
                 self.update_player_info(current_price)
+                messagebox.showinfo("Buy", f"Bought 1 stock at {current_price}.", icon="info")
         except ValueError as e:
             messagebox.showerror("Error", str(e))
 
@@ -311,6 +441,7 @@ class StockMarketUI:
                 messagebox.showerror("Error", f"Not enough stocks to sell {quantity}.")
             else:
                 self.update_player_info(current_price)
+                messagebox.showinfo("Buy", f"Bought 1 stock at {current_price}.", icon="info")
         except ValueError as e:
             messagebox.showerror("Error", str(e))
 
