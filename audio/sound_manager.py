@@ -22,7 +22,7 @@ class SoundManager:
         for sound in self.sounds.values():
             sound.set_volume(0.8)  # 增大音符音量
         for drum in self.drums.values():
-            drum.set_volume(0.5)  # 降低背景音乐音量
+            drum.set_volume(0.3)  # 降低背景音乐音量
 
 
     def play_sound(self, note):

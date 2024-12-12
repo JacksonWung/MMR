@@ -180,6 +180,26 @@ class StockMarketUI:
         quit_button = tk.Button(control_frame2, text="Quit", command=self.quit_program, bg="black", fg="white", font=("Helvetica", 12, "bold"))
         quit_button.grid(row=0, column=2, padx=10, pady=10)
 
+        # Buy and Sell Predefined Quantities
+        quantity_frame = tk.Frame(window)
+        quantity_frame.pack(pady=10)
+
+        # Buy Buttons
+        buy_label = tk.Label(quantity_frame, text="Buy:")
+        buy_label.grid(row=0, column=0, padx=0, pady=0)
+        for i, amount in enumerate([1, 5, 10, 20, 50, 100]):
+            btn = tk.Button(quantity_frame, text=f"{amount}", command=lambda a=amount: self.buy_stocks_fixed(a),
+                            bg="green", fg="white", height=1, width=3)
+            btn.grid(row=0, column=i + 1, padx=0, pady=0)
+
+        # Sell Buttons
+        sell_label = tk.Label(quantity_frame, text="Sell:")
+        sell_label.grid(row=1, column=0, padx=0, pady=0)
+        for i, amount in enumerate([1, 5, 10, 20, 50, 100]):
+            btn = tk.Button(quantity_frame, text=f"{amount}", command=lambda a=amount: self.sell_stocks_fixed(a),
+                            bg="red", fg="white", height=1, width=3)
+            btn.grid(row=1, column=i + 1, padx=0, pady=0)
+
         # 启动实时数据更新线程
         threading.Thread(target=self.play_music_with_chart_update, args=(ax, canvas)).start()
 
@@ -521,7 +541,6 @@ class StockMarketUI:
         """
         self.stop_thread = True
         self.show_feedback_window()
-
 
     def restart_program(self):
         """
