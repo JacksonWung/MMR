@@ -122,6 +122,29 @@ class StockMarketUI:
                             bg="red", fg="white", height=1, width=3)
             btn.grid(row=1, column=i + 1, padx=0, pady=0)
 
+        # Reverb and Distortion Controls
+        filter_frame = tk.Frame(window)
+        filter_frame.pack(pady=10)
+
+        # Reverb Controls
+        reverb_label = tk.Label(filter_frame, text="Reverb:")
+        reverb_label.grid(row=0, column=0, padx=5, pady=5)
+        for i, intensity in enumerate(range(0, 11)):  # Intensities from 0 to 10
+            btn = tk.Button(filter_frame, text=f"{intensity}", 
+                command=lambda lvl=intensity: self.apply_reverb(lvl),
+                bg="blue", fg="white", height=1, width=3)
+        btn.grid(row=0, column=i + 1, padx=2, pady=2)
+
+        # Distortion Controls
+        distortion_label = tk.Label(filter_frame, text="Distortion:")
+        distortion_label.grid(row=1, column=0, padx=5, pady=5)
+        for i, intensity in enumerate(range(0, 11)):  # Intensities from 0 to 10
+            btn = tk.Button(filter_frame, text=f"{intensity}", 
+                command=lambda lvl=intensity: self.apply_distortion(lvl),
+                bg="purple", fg="white", height=1, width=3)
+        btn.grid(row=1, column=i + 1, padx=2, pady=2)
+
+
         # 启动实时数据更新线程
         threading.Thread(target=self.play_music_with_chart_update, args=(ax, canvas)).start()
 

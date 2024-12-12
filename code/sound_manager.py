@@ -1,80 +1,84 @@
 import os
 import pygame
+import numpy as np
+import wave
 
 class SoundManager:
-    def __init__(self, audio_dir, initial_price):
+    def __init__(self, audio_dir):
         pygame.mixer.init()
-        self.initial_price = initial_price
         self.audio_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', audio_dir)
-        self.notes = [
-            "D3", "E3", "F3", "G3", "A3", "B3",  # Lower octave
-            "C4", "D4", "E4", "F4", "G4", "A4", "B4"  # Middle octave
-        ]
-        self.sounds = self.load_sounds()
-        self.drums = self.load_drums()
-        self.current_drum = None
-        self.current_state = None  # Record the current play state
+        self.original_sound = None
+        self.sample_rate = None
+        self.audio_data = None
 
-    def load_sounds(self):
-        sounds = {}
-        for note in self.notes:
-            full_path = os.path.join(self.audio_dir, f"{note}.wav")
-            sounds[note] = pygame.mixer.Sound(full_path)
-            sounds[note].set_volume(0.8)  # Increase note volume
-        return sounds
+    def load_sound(self, file_name):
+        """Load a WAV sound file and prepare it for processing."""
+        file_path = os.path.join(self.audio_dir, file_name)
+        with wave.open(file_path, 'rb') as wav_file:
+            self.sample_rate = wav_file.getframerate()
+            n_channels = wav_file.getnchannels()
+            sample_width = wav_file.getsampwidth()
+            raw_data = wav_file.readframes(wav_file.getnframes())
+            
+            # Convert raw audio to numpy array
+            self.audio_data = np.frombuffer(raw_data, dtype=np.int16).reshape(-1, n_channels)
+            self.original_sound = self.audio_data.copy()
 
-    def load_drums(self):
-        drums = {
-            "normal": pygame.mixer.Sound(os.path.join(self.audio_dir, "gain_drum.mp3")),
-            "gain": pygame.mixer.Sound(os.path.join(self.audio_dir, "money.mp3")),
-            "loss": pygame.mixer.Sound(os.path.join(self.audio_dir, "loss_drum.wav"))
-        }
-        for drum in drums.values():
-            drum.set_volume(0.3)  # Lower background music volume
-        return drums
+    def apply_reverb(self, intensity):
+        """Apply a simple reverb effect by mixing delayed versions of the audio."""
+        if self.audio_data is not None:
+            delay = int(self.sample_rate * 0.03)  # 30ms delay
+            decay = 0.5 + (0.05 * intensity)  # Scale decay with intensity
+            
+            reverb_audio = self.audio_data.copy()
+            for i in range(delay, len(self.audio_data)):
+                reverb_audio[i] += (self.audio_data[i - delay] * decay).astype(np.int16)
+            
+            self.audio_data = np.clip(reverb_audio, -32768, 32767)  # Ensure audio stays within 16-bit range
 
-    def play_sound(self, note):
-        """ Play the specified note sound. """
-        if note in self.sounds:
-            self.sounds[note].play()
+    def apply_distortion(self, intensity):
+        """Apply a distortion effect by compressing audio dynamically."""
+        if self.audio_data is not None:
+            gain = 1 + (intensity / 5)  # Increase gain based on intensity
+            distorted_audio = self.audio_data * gain
+            
+            # Apply soft clipping
+            threshold = 30000  # Limit for clipping
+            distorted_audio = np.clip(distorted_audio, -threshold, threshold)
+            
+            self.audio_data = distorted_audio.astype(np.int16)
 
-    def play_drum(self, drum_type):
-        """ Play the specified type of background music. """
-        if self.current_state == drum_type:
-            # Keep the current music playing if the state hasn't changed
-            return
+    def play_sound(self):
+        """Play the processed sound using pygame."""
+        if self.audio_data is not None:
+            sound = pygame.mixer.Sound(buffer=self._numpy_to_bytes(self.audio_data))
+            sound.play()
 
-        if self.current_drum:
-            self.current_drum.fadeout(1000)  # Fade out current audio in 1 second
+    def reset_sound(self):
+        """Reset the sound to the original unprocessed state."""
+        if self.original_sound is not None:
+            self.audio_data = self.original_sound.copy()
 
-        if drum_type in self.drums:
-            self.current_drum = self.drums[drum_type]
-            self.current_drum.play(loops=-1, fade_ms=1000)  # Fade in new audio in 1 second
-            self.current_state = drum_type  # Update state
+    def _numpy_to_bytes(self, audio):
+        """Convert numpy array back to byte string for pygame."""
+        return audio.tobytes()
 
-    def get_note_by_price_change(self, current_price, next_price):
-        """
-        Calculate the corresponding note based on price change.
-        - No change: play C4
-        - Every 0.5% increase: raise one note
-        - Every 0.5% decrease: lower one note
-        """
-        if current_price == 0:  # Prevent division by zero
-            return "C4"
-
-        # Calculate percentage change in price
-        price_change = (next_price - self.initial_price) / self.initial_price
-        step = round(price_change / 0.005)  # Change one note per 0.5%
-
-        # Index position of C4
-        c4_index = self.notes.index("C4")
-        target_index = c4_index + step
-
-        # Ensure the note index is within range
-        target_index = max(0, min(len(self.notes) - 1, target_index))
-        return self.notes[target_index]
-
-    def play_based_on_price(self, current_price, next_price):
-        """ Play the corresponding note based on price change. """
-        note = self.get_note_by_price_change(current_price, next_price)
-        self.play_sound(note)
+# Usage Example
+if __name__ == "__main__":
+    sm = SoundManager(audio_dir="audio")
+    sm.load_sound("example.wav")
+    
+    print("Playing original sound...")
+    sm.play_sound()
+    pygame.time.wait(3000)
+    
+    sm.apply_reverb(intensity=5)
+    print("Playing sound with reverb...")
+    sm.play_sound()
+    pygame.time.wait(3000)
+    
+    sm.reset_sound()
+    sm.apply_distortion(intensity=7)
+    print("Playing sound with distortion...")
+    sm.play_sound()
+    pygame.time.wait(3000)
