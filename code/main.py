@@ -1,7 +1,8 @@
-from code.sound_manager import SoundManager
-from code.stock_data import StockData
-from code.market import Market
-from code.GUI import StockMarketUI
+from sound_manager import SoundManager
+from stock_data import StockData
+from market import Market
+from GUI import StockMarketUI
+
 
 def main():
     stock_data = StockData.load_data("data/UK_FTSE100 Index.csv")
@@ -10,6 +11,7 @@ def main():
     sound_manager = SoundManager("audio", stock_data['Close'][0])
     ui = StockMarketUI(market, stock_data, sound_manager)
     ui.show_instruction_window()
+
 
 if __name__ == "__main__":
     main()
