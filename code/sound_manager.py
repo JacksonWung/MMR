@@ -1,7 +1,8 @@
 import pygame
 
+
 class SoundManager:
-    def __init__(self, sound_dir,initial_price):
+    def __init__(self, sound_dir, initial_price):
         pygame.mixer.init()
         self.initial_price = initial_price
         self.notes = [
@@ -9,7 +10,7 @@ class SoundManager:
             "C4", "D4", "E4", "F4", "G4", "A4", "B4"  # 中央八度
         ]
         self.sounds = {note: pygame.mixer.Sound(f"{sound_dir}/{note}.wav") for note in self.notes}
-        
+
         self.drums = {
             "normal": pygame.mixer.Sound(f"{sound_dir}/gain_drum.mp3"),
             "gain": pygame.mixer.Sound(f"{sound_dir}/money.mp3"),
@@ -24,14 +25,12 @@ class SoundManager:
         for drum in self.drums.values():
             drum.set_volume(0.3)  # 降低背景音乐音量
 
-
     def play_sound(self, note):
         """
         播放指定音符。
         """
         if note in self.sounds:
             self.sounds[note].play()
-
 
     def play_drum(self, drum_type):
         """
@@ -41,7 +40,7 @@ class SoundManager:
         if self.current_state == drum_type:
             # 当前状态未变化，保持当前音乐播放
             return
-        
+
         if self.current_drum:
             self.current_drum.fadeout(1000)  # 1 秒内淡出当前音频
 
@@ -49,7 +48,6 @@ class SoundManager:
             self.current_drum = self.drums[drum_type]
             self.current_drum.play(loops=-1, fade_ms=1000)  # 1 秒淡入新音频
             self.current_state = drum_type  # 更新状态
-
 
     def get_note_by_price_change(self, current_price, next_price):
         """
@@ -60,11 +58,11 @@ class SoundManager:
         """
         if current_price == 0:  # 防止除以 0
             return "C4"
-        
+
         # 计算价格变化的百分比
         price_change = (next_price - self.initial_price) / self.initial_price
         step = round(price_change / 0.005)  # 每 0.5% 升降一个音符
-        
+
         # C4 的索引位置
         c4_index = self.notes.index("C4")
         target_index = c4_index + step

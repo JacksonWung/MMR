@@ -7,6 +7,8 @@ import threading
 import os
 import pandas as pd
 import sys
+
+
 class StockMarketUI:
     def __init__(self, market, stock_data, sound_manager):
         self.market = market
@@ -106,7 +108,7 @@ class StockMarketUI:
 
         next_instruction()
         root.mainloop()
-    
+
     def create_main_window(self):
         window = tk.Tk()
         window.title("Stock Market Simulator")
@@ -120,13 +122,16 @@ class StockMarketUI:
         top_frame = tk.Frame(window, bg="#d9edf7", relief="raised", bd=2)
         top_frame.pack(side="top", fill="x", padx=10, pady=10)
 
-        self.money_label = tk.Label(top_frame, text=f"Money: ${self.market.player_money:.2f}", font=("Arial", 14), bg="#d9edf7")
+        self.money_label = tk.Label(top_frame, text=f"Money: ${self.market.player_money:.2f}", font=("Arial", 14),
+                                    bg="#d9edf7")
         self.money_label.pack(side="left", padx=20, pady=10)
 
-        self.stock_label = tk.Label(top_frame, text=f"Stocks: {self.market.player_stocks}", font=("Arial", 14), bg="#d9edf7")
+        self.stock_label = tk.Label(top_frame, text=f"Stocks: {self.market.player_stocks}", font=("Arial", 14),
+                                    bg="#d9edf7")
         self.stock_label.pack(side="left", padx=20, pady=10)
 
-        self.total_label = tk.Label(top_frame, text=f"Total Value: ${self.calculate_total_value():.2f}", font=("Arial", 14), bg="#d9edf7")
+        self.total_label = tk.Label(top_frame, text=f"Total Value: ${self.calculate_total_value():.2f}",
+                                    font=("Arial", 14), bg="#d9edf7")
         self.total_label.pack(side="left", padx=20, pady=10)
 
         # ========== 中心图表区域 ==========
@@ -146,7 +151,8 @@ class StockMarketUI:
         canvas = FigureCanvasTkAgg(fig, master=center_frame)
         canvas.get_tk_widget().pack(fill="both", expand=True)
 
-        self.price_label = tk.Label(center_frame, text="Current Price: $0.00", font=("Verdana", 16, "bold"), fg="#0056b3", bg="#f0f8ff")
+        self.price_label = tk.Label(center_frame, text="Current Price: $0.00", font=("Verdana", 16, "bold"),
+                                    fg="#0056b3", bg="#f0f8ff")
         self.price_label.pack(pady=10)
 
         # ========== 底部控制区域 ==========
@@ -157,27 +163,33 @@ class StockMarketUI:
         control_frame = tk.Frame(bottom_frame, bg="#d9edf7")
         control_frame.pack(pady=10)
 
-        tk.Label(control_frame, text="Quantity:", bg="#d9edf7", font=("Arial", 12)).grid(row=0, column=0, padx=5, pady=5)
+        tk.Label(control_frame, text="Quantity:", bg="#d9edf7", font=("Arial", 12)).grid(row=0, column=0, padx=5,
+                                                                                         pady=5)
         self.quantity_entry = tk.Entry(control_frame, width=10)
         self.quantity_entry.grid(row=0, column=1, padx=5, pady=5)
 
-        buy_button = tk.Button(control_frame, text="Buy", command=self.buy_stocks, bg="#28a745", fg="white", font=("Helvetica", 14, "bold"))
+        buy_button = tk.Button(control_frame, text="Buy", command=self.buy_stocks, bg="#28a745", fg="white",
+                               font=("Helvetica", 14, "bold"))
         buy_button.grid(row=0, column=2, padx=10, pady=10)
 
-        sell_button = tk.Button(control_frame, text="Sell", command=self.sell_stocks, bg="#dc3545", fg="white", font=("Helvetica", 14, "bold"))
+        sell_button = tk.Button(control_frame, text="Sell", command=self.sell_stocks, bg="#dc3545", fg="white",
+                                font=("Helvetica", 14, "bold"))
         sell_button.grid(row=0, column=3, padx=10, pady=10)
 
         # 控制按钮
         control_frame2 = tk.Frame(bottom_frame, bg="#d9edf7")
         control_frame2.pack(pady=10)
 
-        stop_button = tk.Button(control_frame2, text="Stop", command=self.stop_simulation, bg="gray", fg="white", font=("Helvetica", 12, "bold"))
+        stop_button = tk.Button(control_frame2, text="Stop", command=self.stop_simulation, bg="gray", fg="white",
+                                font=("Helvetica", 12, "bold"))
         stop_button.grid(row=0, column=0, padx=10, pady=10)
 
-        restart_button = tk.Button(control_frame2, text="Restart", command=self.restart_program, bg="blue", fg="white", font=("Helvetica", 12, "bold"))
+        restart_button = tk.Button(control_frame2, text="Restart", command=self.restart_program, bg="blue", fg="white",
+                                   font=("Helvetica", 12, "bold"))
         restart_button.grid(row=0, column=1, padx=10, pady=10)
 
-        quit_button = tk.Button(control_frame2, text="Quit", command=self.quit_program, bg="black", fg="white", font=("Helvetica", 12, "bold"))
+        quit_button = tk.Button(control_frame2, text="Quit", command=self.quit_program, bg="black", fg="white",
+                                font=("Helvetica", 12, "bold"))
         quit_button.grid(row=0, column=2, padx=10, pady=10)
 
         # Buy and Sell Predefined Quantities
@@ -205,9 +217,9 @@ class StockMarketUI:
 
         window.protocol("WM_DELETE_WINDOW", self.quit_program)
         window.mainloop()
-        
+
     def show_feedback_window(self):
-        
+
         """
         Display a feedback form to collect user experience.
         """
@@ -340,7 +352,7 @@ class StockMarketUI:
         def submit_feedback():
             feedback_results = {}
             for i, var in enumerate(vars_list):
-                feedback_results[f"Q{i+1}"] = var.get()
+                feedback_results[f"Q{i + 1}"] = var.get()
 
             # 保存反馈到 Excel
             file_path = "feedback.xlsx"
@@ -371,6 +383,7 @@ class StockMarketUI:
 
         # 将按钮放在窗口底部并居中
         submit_button.pack(side="bottom", pady=20)
+
         # Submit feedback
         def submit_feedback():
             # Check if all compulsory questions are answered
@@ -384,17 +397,17 @@ class StockMarketUI:
 
             # Collect feedback
             feedback_data.update({
-                f"Q{i+1}": var.get() if isinstance(var, tk.StringVar) else var.get()
+                f"Q{i + 1}": var.get() if isinstance(var, tk.StringVar) else var.get()
                 for i, var in enumerate(compulsory_vars)
             })
             feedback_data.update({
-                f"Optional Q{i+1}": var.get() if isinstance(var, tk.StringVar) else var.get()
+                f"Optional Q{i + 1}": var.get() if isinstance(var, tk.StringVar) else var.get()
                 for i, var in enumerate(optional_vars)
             })
 
             # Save to Excel
             file_path = "feedback.xlsx"
-            
+
             df = pd.DataFrame([feedback_data])
             if os.path.exists(file_path):
                 existing_df = pd.read_excel(file_path)
@@ -405,7 +418,6 @@ class StockMarketUI:
             feedback_window.destroy()
             root.quit()
             sys.exit(0)
-    
 
     def play_music_with_chart_update(self, ax, canvas):
         """
@@ -427,6 +439,7 @@ class StockMarketUI:
             self.update_player_info(next_price)
             self.index += 1
             time.sleep(2)  # 每秒更新一次价格
+
     def buy_stocks(self):
         """
         处理买入操作，更新用户资金和仓位。
@@ -444,8 +457,6 @@ class StockMarketUI:
                 messagebox.showinfo("Buy", f"Bought 1 stock at {current_price}.", icon="info")
         except ValueError as e:
             messagebox.showerror("Error", str(e))
-
-
 
     def sell_stocks(self):
         """
@@ -514,10 +525,10 @@ class StockMarketUI:
             new_state = "loss"
         else:
             new_state = "normal"
-        
+
         # 切换背景音乐
         self.sound_manager.play_drum(new_state)
-    
+
     def calculate_total_value(self, current_price=None):
         """
         计算总资金（现有资金 + 仓位价值）。
@@ -525,7 +536,7 @@ class StockMarketUI:
         if current_price is None:
             current_price = self.prices[self.index]
         return self.market.player_money + self.market.player_stocks * current_price
-    
+
     def stop_simulation(self):
         """
         停止价格更新和声音播放。
@@ -555,12 +566,13 @@ class StockMarketUI:
             self.play_thread.join()  # 等待线程完全终止
         # 重置模拟状态
         self.market.player_money = 100000.0  # 重置初始资金
-        self.market.player_stocks = 0      # 重置初始仓位
-        self.index = 0                     # 重置价格索引
-        self.stop_thread = False           # 重置停止标志
+        self.market.player_stocks = 0  # 重置初始仓位
+        self.index = 0  # 重置价格索引
+        self.stop_thread = False  # 重置停止标志
         # 更新界面显示
         self.update_player_info(self.prices[self.index])
         self.price_label.config(text=f"Current Price: ${self.prices[self.index]:.2f}")
         # 重启播放线程
-        threading.Thread(target=self.play_music_with_chart_update, args=(self.line.axes, self.line.figure.canvas)).start()
+        threading.Thread(target=self.play_music_with_chart_update,
+                         args=(self.line.axes, self.line.figure.canvas)).start()
         self.play_thread.start()

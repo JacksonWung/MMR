@@ -1,5 +1,6 @@
 import pandas as pd
 
+
 class StockData:
     @staticmethod
     def load_data(file_path):

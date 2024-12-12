@@ -1,7 +1,7 @@
-from audio.sound_manager import SoundManager
-from data.stock_data import StockData
-from game_logic.market import Market
-from ui.GUI import StockMarketUI
+from code.sound_manager import SoundManager
+from code.stock_data import StockData
+from code.market import Market
+from code.GUI import StockMarketUI
 
 def main():
     stock_data = StockData.load_data("data/UK_FTSE100 Index.csv")
