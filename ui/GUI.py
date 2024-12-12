@@ -535,7 +535,7 @@ class StockMarketUI:
             self.stop_thread = True  # 通知线程停止
             self.play_thread.join()  # 等待线程完全终止
         # 重置模拟状态
-        self.market.player_money = 1000.0  # 重置初始资金
+        self.market.player_money = 100000.0  # 重置初始资金
         self.market.player_stocks = 0      # 重置初始仓位
         self.index = 0                     # 重置价格索引
         self.stop_thread = False           # 重置停止标志
