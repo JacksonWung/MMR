@@ -19,96 +19,6 @@ class StockMarketUI:
         self.index = 0
         self.stop_thread = False
 
-    def show_instruction_window(self):
-        """
-        Display a multi-step instruction guide for new users.
-        """
-        root = tk.Tk()
-        root.withdraw()
-
-        instructions = [
-            "Welcome to the Stock Market Simulator!\n\n"
-            "This game simulates real-world stock trading combined with a musical experience. "
-            "Stock price movements are represented by musical pitches: higher prices lead to higher pitches, "
-            "and lower prices lead to lower pitches. Your objective is to trade stocks while enjoying the musical dynamics.",
-
-            "Stock Market Basics:\n\n"
-            "1. To profit, buy stocks at a low price and sell them at a higher price.\n"
-            "2. Larger investments may yield higher profits but come with greater risks.\n"
-            "3. Monitor the stock price graph and musical cues to make strategic decisions.\n"
-            "4. Remember: A good trader always balances risks and rewards.",
-
-            "How to Play:\n\n"
-            "1. You start with $100,000 in virtual money.\n"
-            "2. Stock prices and your portfolio details are displayed in real-time.\n"
-            "3. Input the number of shares to trade and click the Buy or Sell button.\n"
-            "   Alternatively, use shortcut buttons for quick trades.\n"
-            "4. Restrictions:\n"
-            "   - You can only buy stocks if you have enough funds.\n"
-            "   - You can only sell stocks if you have shares in your portfolio.\n"
-            "5. Aim to maximize your total value by trading wisely.",
-        ]
-
-        def next_instruction(index=0):
-            if index < len(instructions):
-                instruction_window = tk.Toplevel()
-                instruction_window.title("Instruction")
-                instruction_window.geometry("600x400")
-                instruction_window.configure(bg="#f0f8ff")
-
-                # 添加标题标签
-                tk.Label(
-                    instruction_window,
-                    text=f"Step {index + 1}",
-                    font=("Helvetica", 18, "bold"),
-                    bg="#f0f8ff",
-                    fg="#0056b3"
-                ).pack(pady=10)
-
-                # 添加说明内容
-                tk.Label(
-                    instruction_window,
-                    text=instructions[index],
-                    wraplength=550,
-                    justify="left",
-                    font=("Arial", 14),
-                    bg="#f0f8ff",
-                    fg="#333333"
-                ).pack(pady=20)
-
-                # 按钮样式
-                button_bg = "#007bff"
-                button_fg = "white"
-                button_font = ("Helvetica", 14, "bold")
-
-                if index < len(instructions) - 1:
-                    tk.Button(
-                        instruction_window,
-                        text="Next",
-                        command=lambda: [instruction_window.destroy(), next_instruction(index + 1)],
-                        bg=button_bg,
-                        fg=button_fg,
-                        font=button_font,
-                        relief="raised",
-                        bd=3,
-                        width=10
-                    ).pack(pady=10)
-                else:
-                    tk.Button(
-                        instruction_window,
-                        text="Start Game",
-                        command=lambda: [instruction_window.destroy(), self.create_main_window()],
-                        bg=button_bg,
-                        fg=button_fg,
-                        font=button_font,
-                        relief="raised",
-                        bd=3,
-                        width=15
-                    ).pack(pady=10)
-
-        next_instruction()
-        root.mainloop()
-
     def create_main_window(self):
         window = tk.Tk()
         window.title("Stock Market Simulator")
@@ -219,7 +129,6 @@ class StockMarketUI:
         window.mainloop()
 
     def show_feedback_window(self):
-
         """
         Display a feedback form to collect user experience.
         """
@@ -516,7 +425,7 @@ class StockMarketUI:
         total_value = self.calculate_total_value(current_price)
         self.total_label.config(text=f"Total Value: ${total_value:.2f}")
         # 计算资产变化百分比
-        initial_total = 1000.0  # 假设初始资金为 1000
+        initial_total = 100000.0  # 假设初始资金为 1000
         change_percent = ((total_value - initial_total) / initial_total) * 100
         # 根据资产变化播放对应的背景音乐
         if change_percent >= 2:
