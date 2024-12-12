@@ -5,7 +5,7 @@ from GUI import StockMarketUI
 
 
 def main():
-    stock_data = StockData.load_data("data/UK_FTSE100 Index.csv")
+    stock_data = StockData.load_data("UK_FTSE100 Index.csv")
     market = Market(initial_money=100000.0)  # Initial balance set to $100,000
 
     sound_manager = SoundManager("audio", stock_data['Close'][0])
