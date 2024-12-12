@@ -25,8 +25,10 @@ class SettingsMenu:
         self.stock_data_label = tk.Label(self.root, text="Select Stock Data:", font=("Arial", 12), fg="#333", bg="#f2f2f2")
         self.stock_data_label.pack(pady=10)
 
-        # List all CSV files in the 'data' directory (correct relative path)
-        self.stock_data_options = self.get_csv_files_in_directory("../data")  # Go up one level and then into the 'data' folder
+        # List all CSV files in the 'data' directory
+        current_dir = os.path.dirname(__file__)
+        data_dir = os.path.abspath(os.path.join(current_dir, "../data"))
+        self.stock_data_options = self.get_csv_files_in_directory(data_dir)  # Go up one level and then into the 'data' folder
         if not self.stock_data_options:
             messagebox.showerror("Error", "No CSV files found in the 'data' folder.")
             return
