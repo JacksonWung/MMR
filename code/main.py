@@ -46,10 +46,14 @@ def menu_selection(option, root, stock_data, sound_manager):
             # Reload stock data using the updated stock_file
             stock_data = StockData.load_data(stock_file)
 
+            # Create a new market instance with the updated initial money
+            market = Market(initial_money=initial_money)  # Ensure market is defined here
+
             # Launch the game UI
             ui = StockMarketUI(market, stock_data, sound_manager)
             ui.create_main_window()
 
+        # Pass the start_game callback to TutorialWindow
         tutorial = TutorialWindow(start_game)
         tutorial.show_instruction_window()
 
