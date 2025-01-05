@@ -89,6 +89,26 @@ class StockMarketUI:
                                 font=("Helvetica", 12, "bold"))
         quit_button.pack(side="bottom", pady=10)
 
+        # Buy and Sell Predefined Quantities
+        quantity_frame = tk.Frame(self.window)
+        quantity_frame.pack(pady=10)
+
+        # Buy Buttons
+        buy_label = tk.Label(quantity_frame, text="Buy:")
+        buy_label.grid(row=0, column=0, padx=0, pady=0)
+        for i, amount in enumerate([1, 5, 10, 20, 50, 100]):
+            btn = tk.Button(quantity_frame, text=f"{amount}", command=lambda a=amount: self.buy_stocks_fixed(a),
+                            bg="green", fg="white", height=1, width=3)
+            btn.grid(row=0, column=i + 1, padx=0, pady=0)
+
+        # Sell Buttons
+        sell_label = tk.Label(quantity_frame, text="Sell:")
+        sell_label.grid(row=1, column=0, padx=0, pady=0)
+        for i, amount in enumerate([1, 5, 10, 20, 50, 100]):
+            btn = tk.Button(quantity_frame, text=f"{amount}", command=lambda a=amount: self.sell_stocks_fixed(a),
+                            bg="red", fg="white", height=1, width=3)
+            btn.grid(row=1, column=i + 1, padx=0, pady=0)
+
         threading.Thread(target=self.play_music_with_chart_update, args=(ax, canvas)).start()
 
         self.window.protocol("WM_DELETE_WINDOW", self.quit_program)
@@ -174,29 +194,33 @@ class StockMarketUI:
         )
         submit_button.pack(side="bottom", pady=20)
 
-
-
-
     def play_music_with_chart_update(self, ax, canvas):
         """
-        实时更新价格曲线，并根据精确价格变化播放音符。
+        Real-time update of price chart and play notes based on price changes.
         """
         while self.index < len(self.prices) - 1 and not self.stop_thread:
             current_price = self.prices[self.index]
             next_price = self.prices[self.index + 1]
-            # 更新曲线图
+
+            # Update chart
             ax.set_xlim(0, self.index + 2)
             ax.set_ylim(min(self.prices[:self.index + 2]) * 0.95, max(self.prices[:self.index + 2]) * 1.05)
             self.line.set_data(range(self.index + 2), self.prices[:self.index + 2])
-            canvas.draw()
-            # 根据价格变化播放音符
+
+            # Schedule the GUI update using window.after()
+            self.window.after(0, canvas.draw)
+
+            # Play sound based on price change
             self.sound_manager.play_based_on_price(current_price, next_price)
-            # 更新价格显示
-            self.price_label.config(text=f"Current Price: ${next_price:.2f}")
-            # 更新用户资金和仓位信息
-            self.update_player_info(next_price)
+
+            # Update price display safely
+            self.window.after(0, self.price_label.config, {'text': f"Current Price: ${next_price:.2f}"})
+
+            # Update player info based on price change
+            self.window.after(0, self.update_player_info, next_price)
+
             self.index += 1
-            time.sleep(2)  # 每秒更新一次价格
+            time.sleep(2)  # Update every 2 seconds
 
     def buy_stocks(self):
         """
@@ -286,6 +310,21 @@ class StockMarketUI:
 
         # 切换背景音乐
         self.sound_manager.play_drum(new_state)
+
+        if change_percent >= 5:
+            bg_color = "#28a745"
+        elif 2 <= change_percent < 5:
+            bg_color = "#d4edda"
+        elif -2 < change_percent < 2:
+            bg_color = "#fff3cd"
+        elif -5 <= change_percent <= -2:
+            bg_color = "#f8d7da"
+        else:
+            bg_color = "#721c24"
+
+        self.window.configure(bg=bg_color)
+        for frame in [self.top_frame, self.center_frame, self.bottom_frame]:
+            frame.configure(bg=bg_color)
 
     def calculate_total_value(self, current_price=None):
         """
