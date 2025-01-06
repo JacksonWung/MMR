@@ -311,16 +311,24 @@ class StockMarketUI:
         # 切换背景音乐
         self.sound_manager.play_drum(new_state)
 
-        if change_percent >= 5:
-            bg_color = "#28a745"
-        elif 2 <= change_percent < 5:
-            bg_color = "#d4edda"
-        elif -2 < change_percent < 2:
-            bg_color = "#fff3cd"
-        elif -5 <= change_percent <= -2:
-            bg_color = "#f8d7da"
+        if change_percent >= 10:
+            bg_color = "#155724"  # Dark green
+        elif 7 <= change_percent < 10:
+            bg_color = "#28a745"  # Green
+        elif 4 <= change_percent < 7:
+            bg_color = "#85c88a"  # Light green
+        elif 1 <= change_percent < 4:
+            bg_color = "#d4edda"  # Pale green
+        elif -1 < change_percent < 1:
+            bg_color = "#fff3cd"  # Yellow
+        elif -4 <= change_percent <= -1:
+            bg_color = "#f8d7da"  # Pale red
+        elif -7 <= change_percent < -4:
+            bg_color = "#e57a7a"  # Light red
+        elif -10 <= change_percent < -7:
+            bg_color = "#dc3545"  # Red
         else:
-            bg_color = "#721c24"
+            bg_color = "#721c24"  # Dark red
 
         self.window.configure(bg=bg_color)
         for frame in [self.top_frame, self.center_frame, self.bottom_frame]:
